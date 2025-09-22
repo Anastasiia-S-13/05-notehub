@@ -9,7 +9,7 @@ interface PaginationProps {
 
 export default function Pagination({ totalPages, page, onPageChange }: PaginationProps) {
     if (totalPages === 0) {
-        return 0;
+        return null;
     }
     return (
     <ReactPaginate

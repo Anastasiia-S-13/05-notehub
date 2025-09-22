@@ -1,9 +1,10 @@
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
 import css from "./NoteForm.module.css";
-import type { NoteTag } from "../../type/note";
+import type { NoteTag } from "../../types/note";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "../../services/noteService";
 import * as Yup from "yup";
+import toast from "react-hot-toast";
 
 
 
@@ -20,7 +21,7 @@ interface NoteFormValuesProps{
 const initialValues: NoteFormValuesProps = {
     title: "",
     content: "",
-    tag: "",
+    tag: "Todo",
 }
 
 const OrderFormSchema = Yup.object().shape({
@@ -41,7 +42,11 @@ export default function NoteForm({ onClose }: NoteFormProps) {
             return res;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ["notes"]})
+            queryClient.invalidateQueries({ queryKey: ["notes"] });
+            onClose();
+        },
+        onError: () => {
+            toast.error("Something was wrong")
         }
     })
 
@@ -51,7 +56,6 @@ export default function NoteForm({ onClose }: NoteFormProps) {
 
     const handleSubmit = (values: NoteFormValuesProps, actions: FormikHelpers<NoteFormValuesProps>) => {
         handleCreateNote(values);
-        onClose();
         actions.resetForm();
     }
 

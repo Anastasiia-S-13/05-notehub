@@ -13,6 +13,7 @@ import ErrorMessage from "../ErrorMessage/ErrorMessage"
 import toast, { Toaster } from "react-hot-toast"
 
 export default function App() {
+    const [inputValue, setInputValue] = useState<string>(""); 
     const [searchWord, setSearchWord] = useState<string>("");
     const [openModal, setOpenModal] = useState(false);
     const [page, setPage] = useState(1);
@@ -25,12 +26,16 @@ export default function App() {
         setOpenModal(false);
     }
 
-    const handleChange = useDebouncedCallback(
-        (event: React.ChangeEvent<HTMLInputElement>) =>
-        {
-            setSearchWord(event.target.value);
-            setPage(1);
-        }, 1000)
+    const updateSearchWord = useDebouncedCallback((value: string) => {
+    setSearchWord(value);
+    setPage(1);
+  }, 1000);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setInputValue(value);       // оновлюємо інпут одразу
+    updateSearchWord(value);    // оновлюємо searchWord із затримкою
+  };
 
 
     const { data, isFetching, isError } = useQuery({
@@ -48,8 +53,8 @@ export default function App() {
 
     return <div className={css.app}>
         <header className={css.toolbar}>
-            <SearchBox onChange={handleChange} value={searchWord}/>
-            {data && data?.notes.length > 1 && <Pagination totalPages={data?.totalPages ?? 0} page={page} onPageChange={(newPage) => setPage(newPage)} />}
+            <SearchBox onChange={handleChange} value={inputValue}/>
+            {data && data?.totalPages > 1 && <Pagination totalPages={data?.totalPages ?? 0} page={page} onPageChange={(newPage) => setPage(newPage)} />}
             <button className={css.button} onClick={handleOpenModal}>Create note +</button>
         </header>
         {isFetching && <Loader />}
